@@ -23,15 +23,20 @@ fn is_numeric_list(message: &str) -> bool {
 
 pub fn reply(message: &str) -> &str {
     let message = message.trim();
-    match message {
-        _ if message.is_empty() => return "Fine. Be that way!",
-        _ if is_uppercase(message) && message.ends_with('?') && is_only_text(message) => {
-            return "Calm down, I know what I'm doing!"
-        }
-        _ if message.ends_with("?") => return "Sure.",
-        _ if is_uppercase(message) && !message.ends_with('?') && !is_numeric_list(message) => {
-            return "Whoa, chill out!"
-        }
-        _ => return "Whatever.",
+    if message.is_empty() {
+        return "Fine. Be that way!";
     }
+    if is_uppercase(message) && message.ends_with('?') && is_only_text(message) {
+        return "Calm down, I know what I'm doing!";
+    }
+
+    if message.len() > 1 && message.ends_with('?') {
+        return "Sure.";
+    }
+
+    if is_uppercase(message) && !message.ends_with('?') && !is_numeric_list(message) {
+        return "Whoa, chill out!";
+    }
+
+    "Whatever."
 }
