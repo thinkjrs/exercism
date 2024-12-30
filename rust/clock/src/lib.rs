@@ -17,41 +17,12 @@ impl fmt::Display for Clock {
         format!("{:02}:{:02}", self.hours, self.minutes).fmt(f)
     }
 }
+
 impl Clock {
     pub fn new(hours: i32, minutes: i32) -> Self {
-        let mut hours = if minutes / 60 >= 1 {
-            hours + minutes / 60
-        } else {
-            hours
-        };
-
-        let minutes = if { minutes } < 0 {
-            let mut tmp_minutes = minutes;
-
-            let upper_bound = if minutes == -60 {
-                minutes / 60 * -1
-            } else {
-                minutes / 60 * -1 + 1
-            };
-
-            for _ in 0..upper_bound {
-                tmp_minutes += 60;
-                hours -= 1;
-            }
-            tmp_minutes
-        } else {
-            minutes
-        };
-
-        let hours = if hours < 0 {
-            let mut tmp_hours = hours;
-            for _ in 0..hours / 24 * -1 + 1 {
-                tmp_hours += 24;
-            }
-            tmp_hours
-        } else {
-            hours
-        };
+        let hours = Clock::adjust_hours_for_minutes(hours, minutes);
+        let (minutes, hours) = Clock::calculate_minutes(minutes, hours);
+        let hours = Clock::calculate_hours(hours);
 
         Clock {
             hours: hours % 24,
@@ -60,44 +31,55 @@ impl Clock {
     }
 
     pub fn add_minutes(&self, minutes: i32) -> Self {
-        let new_minutes = self.minutes + minutes;
-        let mut hours = if new_minutes / 60 >= 1 {
-            self.hours + new_minutes / 60
-        } else {
-            self.hours
-        };
-
-        let minutes = if { new_minutes } < 0 {
-            let mut tmp_minutes = new_minutes;
-
-            let upper_bound = if new_minutes == -60 {
-                new_minutes / 60 * -1
-            } else {
-                new_minutes / 60 * -1 + 1
-            };
-
-            for _ in 0..upper_bound {
-                tmp_minutes += 60;
-                hours -= 1;
-            }
-            tmp_minutes
-        } else {
-            new_minutes % 60
-        };
-
-        let hours = if hours < 0 {
-            let mut tmp_hours = hours;
-            for _ in 0..hours / 24 * -1 + 1 {
-                tmp_hours += 24;
-            }
-            tmp_hours
-        } else {
-            hours
-        };
+        let minutes = self.minutes + minutes;
+        let hours = Clock::adjust_hours_for_minutes(self.hours, minutes);
+        let (minutes, hours) = Clock::calculate_minutes(minutes, hours);
+        let hours = Clock::calculate_hours(hours);
 
         Clock {
             hours: hours % 24,
             minutes: minutes % 60,
+        }
+    }
+
+    fn calculate_hours(hours: i32) -> i32 {
+        match hours < 0 {
+            true => {
+                let mut tmp_hours = hours;
+                for _ in 0..hours / 24 * -1 + 1 {
+                    tmp_hours += 24;
+                }
+                tmp_hours
+            }
+            false => hours,
+        }
+    }
+
+    fn calculate_minutes(minutes: i32, mut hours: i32) -> (i32, i32) {
+        match minutes < 0 {
+            true => {
+                let mut tmp_minutes = minutes;
+
+                let upper_bound = if minutes == -60 {
+                    minutes / 60 * -1
+                } else {
+                    minutes / 60 * -1 + 1
+                };
+
+                for _ in 0..upper_bound {
+                    tmp_minutes += 60;
+                    hours -= 1;
+                }
+                (tmp_minutes, hours)
+            }
+            false => (minutes % 60, hours),
+        }
+    }
+
+    fn adjust_hours_for_minutes(hours: i32, minutes: i32) -> i32 {
+        match minutes / 60 >= 1 {
+            true => hours + minutes / 60,
+            false => hours,
         }
     }
 }
