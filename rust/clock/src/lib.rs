@@ -43,20 +43,15 @@ impl Clock {
     }
 
     fn calculate_hours(hours: i32) -> i32 {
-        match hours < 0 {
-            true => {
-                let mut tmp_hours = hours;
-                for _ in 0..hours / 24 * -1 + 1 {
-                    tmp_hours += 24;
-                }
-                tmp_hours
-            }
-            false => hours,
+        match hours {
+            h if h < 0 => h.rem_euclid(24),
+            h => h,
         }
     }
 
     fn calculate_minutes(minutes: i32, mut hours: i32) -> (i32, i32) {
         match minutes {
+            // use pattern guard
             m if m < 0 => {
                 let adjustment = (-m + 59) / 60;
                 let adjusted_minutes = m + adjustment * 60;
@@ -68,9 +63,10 @@ impl Clock {
     }
 
     fn adjust_hours_for_minutes(hours: i32, minutes: i32) -> i32 {
-        match minutes / 60 >= 1 {
-            true => hours + minutes / 60,
-            false => hours,
+        match minutes / 60 {
+            // use pattern guard
+            m if m >= 1 => hours + m,
+            _ => hours,
         }
     }
 }
