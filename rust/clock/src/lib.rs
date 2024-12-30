@@ -56,23 +56,14 @@ impl Clock {
     }
 
     fn calculate_minutes(minutes: i32, mut hours: i32) -> (i32, i32) {
-        match minutes < 0 {
-            true => {
-                let mut tmp_minutes = minutes;
-
-                let upper_bound = if minutes == -60 {
-                    minutes / 60 * -1
-                } else {
-                    minutes / 60 * -1 + 1
-                };
-
-                for _ in 0..upper_bound {
-                    tmp_minutes += 60;
-                    hours -= 1;
-                }
-                (tmp_minutes, hours)
+        match minutes {
+            m if m < 0 => {
+                let adjustment = (-m + 59) / 60;
+                let adjusted_minutes = m + adjustment * 60;
+                hours -= adjustment;
+                (adjusted_minutes, hours)
             }
-            false => (minutes % 60, hours),
+            m => (m % 60, hours),
         }
     }
 
