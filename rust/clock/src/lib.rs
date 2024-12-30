@@ -25,8 +25,8 @@ impl Clock {
         let hours = Clock::calculate_hours(hours);
 
         Clock {
-            hours: hours % 24,
-            minutes: minutes % 60,
+            hours: hours.rem_euclid(24),
+            minutes: minutes.rem_euclid(60),
         }
     }
 
@@ -37,8 +37,8 @@ impl Clock {
         let hours = Clock::calculate_hours(hours);
 
         Clock {
-            hours: hours % 24,
-            minutes: minutes % 60,
+            hours: hours.rem_euclid(24),
+            minutes: minutes.rem_euclid(60),
         }
     }
 
@@ -56,14 +56,14 @@ impl Clock {
                 let adjustment = (-m + 59) / 60;
                 let adjusted_minutes = m + adjustment * 60;
                 hours -= adjustment;
-                (adjusted_minutes, hours)
+                (adjusted_minutes.rem_euclid(60), hours)
             }
-            m => (m % 60, hours),
+            m => (m.rem_euclid(60), hours),
         }
     }
 
     fn adjust_hours_for_minutes(hours: i32, minutes: i32) -> i32 {
-        match minutes / 60 {
+        match minutes.div_euclid(60) {
             // use pattern guard
             m if m >= 1 => hours + m,
             _ => hours,
